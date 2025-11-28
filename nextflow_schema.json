@@ -1,54 +1,143 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com//master/nextflow_schema.json",
-    "title": " pipeline parameters",
-    "description": "",
+    "title": "User",
+    "description": "A simple schema for testing",
     "type": "object",
     "$defs": {
-        "parameters": {
-            "title": "Parameters",
-            "type": "object",
-            "fa_icon": "fas fa-terminal",
-            "description": "Parameters for controlling execution of the pipeline.",
-            "properties": {
-                "run": {
-                    "type": "string",
-                    "description": "Selectively run tests  as comma delimited values",
-                    "help_text": "Tests to run as comma delimited values. E.g. --skip TEST_SUCCESS,TEST_INPUT. Case insensitive. Note this excludes all other tests."
-                },
-                "skip": {
-                    "type": "string",
-                    "description": "Tests to skip as comma delimited values.",
-                    "help_text": "Tests to skip as comma delimited values. E.g. --skip TEST_SUCCESS,TEST_INPUT. Case insensitive."
-                },
-                "remoteFile": {
-                    "type": "string",
-                    "description": "Path to remote file to download and use.",
-                    "help_text": "Path to a remote file to use within the pipeline. This mimics a remote set of files such as reference data that may need to be retrieved prior to analysis. By default this is not specified and the test is not ran, add a remote file using standard Nextflow filenaming to pull a file from your storage (e.g. an S3 bucket or shared storage).",
-                    "format": "path"
-                },
-                "container": {
-                    "type": "string",
-                    "description": "Container URI for nf-canary",
-                    "help_text": "Specifies the container URI. By default, this is an Ubuntu container on quay.io with no usage limits.",
-                    "default": "quay.io/biocontainers/ubuntu:24.04"
-                },
-                "gpu": {
-                    "type": "boolean",
-                    "description": "Whether to test GPU utilization within a process."
-                },
-                "outdir": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "Path to use for publishing output files.",
-                    "help_text": "Path to a remote folder to publish files to. If not specified, this is a subfolder within the working directory but if specified it will publish files to the path specified in this parameter."
-                }
-            }
+      "test_schema": {
+        "title": "Test schema",
+        "description": "Testing SecurityContext.HTML sanitization with dangerous and normal markdown patterns. Each test object below contains specific markdown patterns to test how SecurityContext.HTML sanitizes them.",
+        "type": "object"
+      },
+      "normal_markdown": {
+        "title": "Normal markdown test",
+        "description": "This is **bold text** and this is *italic text*. Here's a [normal link](https://example.com). Code: `console.log('hello')`. List:\n\n1. First item\n2. Second item\n3. Third item\n\n> Blockquote text",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
         }
-    },
-    "allOf": [
-        {
-            "$ref": "#/$defs/parameters"
+      },
+      "script_tags": {
+        "title": "Script tags test",
+        "description": "Note: `<script>` tags DON'T execute via innerHTML (browser security). Test: <script>alert('XSS')</script> won't run. BUT event handlers DO: <img src=x onerror=\"alert('XSS via onerror')\">. Also test: <svg onload=\"alert('SVG onload XSS')\"></svg>. Normal HTML: <strong>bold</strong> should work.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
         }
-    ]
-}
+      },
+      "javascript_urls": {
+        "title": "JavaScript URLs test",
+        "description": "Dangerous links: [javascript:alert('XSS')](javascript:alert('XSS')), [click me](javascript:void(0)), [evil link](javascript:document.location='http://evil.com'). Safe link: [normal link](https://example.com) should work.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "event_handlers": {
+        "title": "Event handlers test",
+        "description": "Event handlers: `<img src=\"x\" onerror=\"alert('onerror XSS')\">`, `<div onclick=\"alert('onclick XSS')\">click</div>`, `<svg onload=\"alert('onload XSS')\"></svg>`, `<body onload=\"alert('body onload')\">`. Safe HTML: `<div>content</div>` should work.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "iframe_injection": {
+        "title": "Iframe injection test",
+        "description": "Iframe attacks: `<iframe src=\"javascript:alert('iframe XSS')\"></iframe>`, `<iframe src=\"data:text/html,<script>alert('data: XSS')</script>\"></iframe>`, `<embed src=\"javascript:alert('embed XSS')\">`. Safe iframe: `<iframe src=\"https://example.com\"></iframe>` might be blocked too.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "data_urls": {
+        "title": "Data URLs test",
+        "description": "Data URLs: [data link](data:text/html,<script>alert('data: XSS')</script>), ![data image](data:text/html,<script>alert('image')</script>). Safe image: ![normal image](https://example.com/image.jpg \"alt text\") should work.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "style_injection": {
+        "title": "Style injection test",
+        "description": "Style attacks: `<div style=\"background: url(javascript:alert('style XSS'))\">`, `<div style=\"expression(alert('IE XSS'))\">`, `<style>body{background:url(javascript:alert('CSS'))}</style>`. Safe style: `<div style=\"color: red; padding: 10px;\">text</div>` might be sanitized.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "svg_injection": {
+        "title": "SVG injection test",
+        "description": "SVG attacks: `<svg><script>alert('SVG script')</script></svg>`, `<svg onload=\"alert('SVG onload')\"></svg>`, `<svg><foreignObject><body><script>alert('foreignObject')</script></body></foreignObject></svg>`. Normal text should work.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "mixed_attack": {
+        "title": "Mixed attack test",
+        "description": "Combined attack: `<img src=\"x\" style=\"background: url(javascript:alert('mixed'))\" onerror=\"alert('mixed onerror')\">` with [link](javascript:alert('mixed URL')) and `<script>alert('mixed script')</script>`. Safe markdown: **bold** and *italic* should work.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "code_blocks": {
+        "title": "Code blocks test",
+        "description": "Code blocks: `` `<script>alert('code')</script>` `` (inline), and:\n\n```\n<script>alert('code block')</script>\nconsole.log('normal code')\n```\n\nNormal code should be displayed, scripts should be escaped.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "html_in_markdown": {
+        "title": "HTML in markdown test",
+        "description": "HTML in markdown: `<strong>bold HTML</strong>` works, but `<script>alert('HTML script')</script>` should be blocked. **Markdown bold** and *markdown italic* should work. `<p>HTML paragraph</p>` should render.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "link_title_injection": {
+        "title": "Link title injection test",
+        "description": "Link titles: [link](https://example.com \"<script>alert('title XSS')</script>\"), [link](https://example.com \"normal title\"). Image titles: ![img](https://example.com/img.jpg \"<script>alert('img title')</script>\")",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "special_characters": {
+        "title": "Special characters test",
+        "description": "Encoding tricks: `<img src=x onerror=alert(String.fromCharCode(88,83,83))>`, `<img src=x onerror=alert('&#88;&#83;&#83;')>`. Normal text with special chars: \"quotes\", 'apostrophes', < > & symbols.",
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
