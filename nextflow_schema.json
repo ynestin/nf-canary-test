@@ -14,7 +14,8 @@
                 "run": {
                     "type": "string",
                     "description": "Selectively run tests  as comma delimited values",
-                    "help_text": "Tests to run as comma delimited values. E.g. --skip TEST_SUCCESS,TEST_INPUT. Case insensitive. Note this excludes all other tests."
+                    "help_text": "Tests to run as comma delimited values. E.g. --skip TEST_SUCCESS,TEST_INPUT. Case insensitive. Note this excludes all other tests.",
+                    "track_changes": false
                 },
                 "skip": {
                     "type": "string",
