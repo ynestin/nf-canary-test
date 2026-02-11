@@ -6,7 +6,7 @@
     "type": "object",
     "$defs": {
         "parameters": {
-            "title": "Parameterss",
+            "title": "Parametersss",
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Parameters for controlling execution of the pipeline.",
