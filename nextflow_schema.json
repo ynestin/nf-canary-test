@@ -42,6 +42,31 @@
                     "format": "directory-path",
                     "description": "Path to use for publishing output files.",
                     "help_text": "Path to a remote folder to publish files to. If not specified, this is a subfolder within the working directory but if specified it will publish files to the path specified in this parameter."
+                },
+                "stringList": {
+                    "type": "array",
+                    "description": "List of string values for testing array handling.",
+                    "help_text": "An array of strings used to test how the pipeline handles list parameters.",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "intList": {
+                    "type": "array",
+                    "description": "List of integer values for testing array handling.",
+                    "help_text": "An array of integers used to test how the pipeline handles numeric list parameters.",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "fileList": {
+                    "type": "array",
+                    "description": "List of file paths for testing array handling.",
+                    "help_text": "An array of file paths used to test how the pipeline handles lists of input files.",
+                    "items": {
+                        "type": "string",
+                        "format": "path"
+                    }
                 }
             }
         }
